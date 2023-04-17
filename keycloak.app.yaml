@@ -1,0 +1,41 @@
+apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  name: keycloak
+  annotations:
+    version: 21.0.2
+    description: "Open Source Identity and Access Management."
+spec:
+  components:
+    - name: keycloak
+      type: webservice
+      properties:
+        image: bitnami/keycloak:latest
+        dependsOn:
+        - postgres-keycloak
+        ports:
+          - port: 8080
+            expose: true
+        env:
+        - name: KEYCLOAK_CREATE_ADMIN_USER
+          value: "true"
+        - name: KEYCLOAK_ADMIN_USER
+          value: "admin"
+        - name: KEYCLOAK_ADMIN_PASSWORD
+          value: "admin"
+        - name: KEYCLOAK_DATABASE_HOST
+          value: "postgres-keycloak"
+        - name: KEYCLOAK_DATABASE_PORT
+          value: "5432"
+        - name: KEYCLOAK_DATABASE_USER
+          value: "bn_keycloak"
+      traits:
+        - type: napptive-ingress
+          properties:
+            name: keycloak
+            port: 8080
+            path: /
+            rewritePath: /
+  policies:
+    - name: keycloak-health
+      type: health
